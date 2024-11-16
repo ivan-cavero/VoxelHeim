@@ -1,0 +1,25 @@
+{
+	"name": "voxel-heim",
+	"version": "0.0.0",
+	"private": true,
+	"workspaces": ["apps/frontend", "apps/backend/*"],
+	"scripts": {
+		"dev:frontend": "bun run --cwd apps/frontend dev",
+		"build:frontend": "bun run --cwd apps/frontend build",
+		"start:frontend": "bun run --cwd apps/frontend preview",
+		"dev:backend:auth": "cd apps/backend/auth && encore run",
+		"dev:backend:game": "cd apps/backend/game && encore run",
+		"dev:backend:analytics": "cd apps/backend/analytics && encore run",
+		"build:backend:auth": "cd apps/backend/auth && encore build",
+		"build:backend:game": "cd apps/backend/game && encore build",
+		"build:backend:analytics": "cd apps/backend/analytics && encore build",
+		"prepare": "husky",
+		"lint": "biome lint"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^19.5.0",
+		"@commitlint/config-conventional": "^19.5.0",
+		"@biomejs/biome": "1.9.4",
+		"husky": "^9.1.6"
+	}
+}

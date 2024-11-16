@@ -1,0 +1,55 @@
+.patch_notes {
+	background: var(--color-bg-panel);
+	border: 1px solid var(--color-border-primary);
+	border-radius: var(--border-radius-md);
+	padding: 1rem;
+}
+
+.panel_header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var(--color-primary);
+	font-size: 1rem;
+	font-weight: 600;
+	margin-bottom: 0.75rem;
+}
+
+.icon {
+	width: 16px;
+	height: 16px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.patch_content {
+	font-size: 0.9rem;
+}
+
+.patch_version h4 {
+	margin: 0 0 0.5rem 0;
+	color: var(--color-text-primary);
+}
+
+.patch_version ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.patch_version li {
+	color: var(--color-text-secondary);
+	margin-bottom: 0.25rem;
+	padding-left: 1rem;
+	position: relative;
+}
+
+.patch_version li:before {
+	content: "•";
+	position: absolute;
+	left: 0;
+	color: var(--color-primary);
+}

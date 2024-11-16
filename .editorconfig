@@ -1,0 +1,27 @@
+# https://editorconfig.org/
+
+root = true
+
+# All files
+[*]
+indent_style = tab
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = false
+max_line_length = 140
+
+# JavaScript files
+[*.{js,ts}]
+quote_type = single
+trailing_comma = none
+semicolon = required
+no_unused_variables = error
+use_block_statements = error
+use_shorthand_array_type = error
+use_shorthand_function_type = error
+use_template = error
+no_assign_in_expressions = error
+no_explicit_any = error
+no_for_each = off

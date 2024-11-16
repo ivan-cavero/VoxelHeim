@@ -1,0 +1,23 @@
+html {
+	line-height: 1.15;
+	-webkit-text-size-adjust: 100%;
+}
+
+/* Font face definition */
+@font-face {
+	font-family: "Old London";
+	src: url("/fonts/OldLondon.woff2") format("woff2"), url("/fonts/OldLondon.ttf") format("truetype");
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+body {
+	margin: 0;
+	overflow: hidden;
+	font-family: "Arial", "Helvetica", "Verdana", sans-serif;
+}
+
+canvas {
+	display: block;
+}

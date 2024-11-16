@@ -1,0 +1,100 @@
+.bottom_panel {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 2rem;
+	background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+	pointer-events: auto;
+}
+
+.left_buttons,
+.right_buttons {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+}
+
+.game_version {
+	color: var(--color-text-secondary);
+	font-size: 0.9rem;
+	margin-right: 1rem;
+}
+
+.bottom_btn {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.5rem;
+	background: var(--color-button-social-bg);
+	border: 1px solid;
+	border-image: var(--color-button-social-border) 1;
+	color: var(--color-text-secondary);
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.bottom_btn:hover {
+	box-shadow: var(--glow-gold);
+	color: var(--color-text-primary);
+}
+
+.icon {
+	width: 16px;
+	height: 16px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.play_btn {
+	position: absolute;
+	left: 50%;
+	bottom: 2rem;
+	transform: translateX(-50%);
+	width: 200px;
+	height: 50px;
+	background: var(--color-button-primary-bg);
+	border: 2px solid;
+	border-image: var(--color-button-primary-border) 1;
+	color: var(--color-text-primary);
+	font-size: 1.2rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	z-index: 10;
+}
+
+.play_btn:hover {
+	box-shadow: var(--glow-gold);
+	transform: translateX(-50%) scale(1.05);
+}
+
+.play_btn .icon {
+	width: 24px;
+	height: 24px;
+}
+
+@media (max-width: 768px) {
+	.bottom_panel {
+		justify-content: center;
+	}
+
+	.left_buttons,
+	.right_buttons {
+		display: none;
+	}
+
+	.play_btn {
+		position: static;
+		transform: none;
+	}
+}
