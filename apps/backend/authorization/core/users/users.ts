@@ -1,30 +1,31 @@
 import { api, APIError, ErrCode } from 'encore.dev/api'
 import log from 'encore.dev/log'
-import { db } from './db'
+import { db } from '../db'
 
 interface User {
 	id: number
 	uuid: string
 	username: string
 	email: string
+	email_verified: boolean
+	email_verification_token: string | null
 	role_id: number
 	two_factor_enabled: boolean
 	last_login: string | null
+	is_online: boolean
 	provider_id: number
 	created_at: string
 	updated_at: string
 }
 
 interface GetUsersParams {
-	page: number
-	limit: number
+	page?: number
+	limit?: number
 }
 
 interface UpdateUserParams {
 	userId: number
-	username?: string
-	email?: string
-	two_factor_enabled?: boolean
+	updates: Partial<User>
 }
 
 export const getUsers = api<GetUsersParams, { users: User[]; total: number }>(
@@ -33,32 +34,36 @@ export const getUsers = api<GetUsersParams, { users: User[]; total: number }>(
 		path: '/users',
 		expose: false
 	},
-	async ({ page, limit }) => {
+	async ({ page = 1, limit = 100 }) => {
 		try {
 			const offset = (page - 1) * limit
 
+			log.info('Fetching users', { page, limit, offset })
+
 			const usersResult = await db.query<User>`
-                SELECT id, uuid, username, email, role_id, two_factor_enabled, last_login, provider_id, created_at, updated_at
-                FROM users
-                WHERE deleted_at IS NULL
-                ORDER BY created_at DESC
-                LIMIT ${limit} OFFSET ${offset}
-            `
+				SELECT id, uuid, username, email, email_verified, email_verification_token, role_id, two_factor_enabled, last_login, provider_id, created_at, updated_at
+				FROM users
+				WHERE deleted_at IS NULL
+				ORDER BY created_at DESC
+				LIMIT ${limit} OFFSET ${offset}
+			`
 
 			const users: User[] = []
 			for await (const user of usersResult) {
 				users.push(user)
 			}
 
-			const countResult = await db.query<{ count: string }>`
-                SELECT COUNT(*) as count FROM users WHERE deleted_at IS NULL
-            `
+			const countResult = db.query<{ count: string }>`
+				SELECT COUNT(*) as count FROM users WHERE deleted_at IS NULL
+			`
 
 			let total = 0
 			for await (const row of countResult) {
 				total = Number.parseInt(row.count, 10)
 				break
 			}
+
+			log.info('Users fetched', { userCount: usersResult })
 
 			return { users, total }
 		} catch (error) {
@@ -77,10 +82,10 @@ export const getUserById = api<{ userId: number }, User>(
 	async ({ userId }) => {
 		try {
 			const userResult = await db.query<User>`
-                SELECT id, uuid, username, email, role_id, two_factor_enabled, last_login, provider_id, created_at, updated_at
-                FROM users
-                WHERE id = ${userId} AND deleted_at IS NULL
-            `
+				SELECT id, uuid, username, email, email_verified, email_verification_token, role_id, two_factor_enabled, last_login, provider_id, created_at, updated_at
+				FROM users
+				WHERE id = ${userId} AND deleted_at IS NULL
+			`
 
 			let user: User | null = null
 			for await (const row of userResult) {
@@ -109,36 +114,30 @@ export const updateUser = api<UpdateUserParams, User>(
 		path: '/users/:userId',
 		expose: false
 	},
-	async ({ userId, username, email, two_factor_enabled }) => {
+	async ({ userId, updates }) => {
 		try {
-			const updates: string[] = []
-			const values: (string | boolean | number)[] = []
+			const updateFields: string[] = []
+			const values: unknown[] = []
 
-			if (username !== undefined) {
-				updates.push('username = ?')
-				values.push(username)
-			}
-			if (email !== undefined) {
-				updates.push('email = ?')
-				values.push(email)
-			}
-			if (two_factor_enabled !== undefined) {
-				updates.push('two_factor_enabled = ?')
-				values.push(two_factor_enabled)
-			}
+			Object.entries(updates).forEach(([key, value]) => {
+				if (value !== undefined) {
+					updateFields.push(`${key} = ?`)
+					values.push(value)
+				}
+			})
 
-			if (updates.length === 0) {
+			if (updateFields.length === 0) {
 				throw new APIError(ErrCode.InvalidArgument, 'No valid fields to update')
 			}
 
 			values.push(userId)
 
 			const updatedUserResult = await db.query<User>`
-                UPDATE users
-                SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
-                WHERE id = ? AND deleted_at IS NULL
-                RETURNING id, uuid, username, email, role_id, two_factor_enabled, last_login, provider_id, created_at, updated_at
-            `
+				UPDATE users
+				SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
+				WHERE id = ? AND deleted_at IS NULL
+				RETURNING id, uuid, username, email, role_id, two_factor_enabled, last_login, provider_id, created_at, updated_at
+			`
 
 			let updatedUser: User | null = null
 			for await (const row of updatedUserResult) {
