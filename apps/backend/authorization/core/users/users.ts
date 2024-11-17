@@ -23,9 +23,13 @@ interface GetUsersParams {
 	limit?: number
 }
 
-interface UpdateUserParams {
+type UpdateUserParams = {
 	userId: number
-	updates: Partial<User>
+} & Partial<Omit<User, 'id' | 'uuid' | 'created_at' | 'updated_at'>>
+
+interface UpdateUserResponse {
+	success: boolean
+	message: string
 }
 
 export const getUsers = api<GetUsersParams, { users: User[]; total: number }>(
@@ -108,53 +112,54 @@ export const getUserById = api<{ userId: number }, User>(
 	}
 )
 
-export const updateUser = api<UpdateUserParams, User>(
+export const updateUser = api<UpdateUserParams, UpdateUserResponse>(
 	{
 		method: 'PUT',
 		path: '/users/:userId',
 		expose: false
 	},
-	async ({ userId, updates }) => {
+	async (params) => {
+		const { userId, ...updates } = params
 		try {
-			const updateFields: string[] = []
-			const values: unknown[] = []
+			log.info('Attempting to update user', { userId, updates })
+
+			const setClauses: string[] = []
 
 			Object.entries(updates).forEach(([key, value]) => {
 				if (value !== undefined) {
-					updateFields.push(`${key} = ?`)
-					values.push(value)
+					if (typeof value === 'string') {
+						setClauses.push(`${key} = '${value}'`)
+					} else {
+						setClauses.push(`${key} = ${value}`)
+					}
 				}
 			})
 
-			if (updateFields.length === 0) {
+			log.debug('Constructed SET clauses', { setClauses })
+
+			if (setClauses.length === 0) {
+				log.warn('No valid fields to update', { userId })
 				throw new APIError(ErrCode.InvalidArgument, 'No valid fields to update')
 			}
 
-			values.push(userId)
+			const query = `UPDATE users SET ${setClauses.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ${userId} AND deleted_at IS NULL`
 
-			const updatedUserResult = await db.query<User>`
-				UPDATE users
-				SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
-				WHERE id = ? AND deleted_at IS NULL
-				RETURNING id, uuid, username, email, role_id, two_factor_enabled, last_login, provider_id, created_at, updated_at
-			`
+			log.debug('Executing update query', { query })
 
-			let updatedUser: User | null = null
-			for await (const row of updatedUserResult) {
-				updatedUser = row
-				break
-			}
+			await db.exec`${query}`
 
-			if (!updatedUser) {
-				throw new APIError(ErrCode.NotFound, 'User not found')
-			}
-
-			return updatedUser
+			log.info('User updated successfully', { userId })
+			return { success: true, message: 'User updated successfully' }
 		} catch (error) {
-			log.error('Error updating user', { userId, error: error instanceof Error ? error.message : String(error) })
+			log.error('Error updating user', {
+				userId,
+				error: error instanceof Error ? error.message : String(error)
+			})
+
 			if (error instanceof APIError) {
 				throw error
 			}
+
 			throw new APIError(ErrCode.Internal, 'An unexpected error occurred while updating the user')
 		}
 	}
