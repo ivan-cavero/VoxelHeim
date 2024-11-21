@@ -1,26 +1,29 @@
 {
-	"name": "encore-ts-starter",
+	"name": "encore-drizzle-example",
 	"private": true,
 	"version": "0.0.1",
-	"description": "Encore Typescript Starter",
+	"description": "Encore + Drizzle Typescript Example",
 	"license": "MPL-2.0",
 	"type": "module",
 	"scripts": {
 		"dev": "encore run",
 		"build": "encore build",
-		"test": "vitest"
+		"test": "vitest",
+		"generate": "drizzle-kit generate"
 	},
 	"devDependencies": {
-		"@types/node": "^20.5.7",
-		"typescript": "^5.2.2",
+		"@types/node": "^22.9.1",
+		"drizzle-kit": "^0.28.1",
+		"typescript": "^5.6.3",
 		"vitest": "^1.2.2"
 	},
 	"dependencies": {
-		"@node-rs/argon2": "^2.0.0",
-		"encore.dev": "^1.43.12",
-		"jose": "^5.9.6"
+		"@types/pg": "^8.11.10",
+		"drizzle-orm": "^0.36.3",
+		"encore.dev": "^1.44.4",
+		"pg": "^8.13.1"
 	},
 	"optionalDependencies": {
-		"@rollup/rollup-linux-x64-gnu": "^4.13.0"
+		"@rollup/rollup-linux-x64-gnu": "^4.27.3"
 	}
 }
