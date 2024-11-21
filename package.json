@@ -17,7 +17,8 @@
 		"build:backend:game": "cd apps/backend/game && encore build",
 		"build:backend:analytics": "cd apps/backend/analytics && encore build",
 		"prepare": "husky",
-		"lint": "biome lint"
+		"lint": "biome lint",
+		"install:all": "bun install && bun install --cwd apps/backend/authorization"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
