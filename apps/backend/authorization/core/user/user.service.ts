@@ -26,10 +26,18 @@ const UserService = {
 	},
 
 	update: async (id: number, data: UpdateUserDto): Promise<UserResponse> => {
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		// biome-ignore lint/style/useConst: <explanation>
 		let updateData: any = {}
-		if (data.email) updateData.email = data.email
-		if (data.username) updateData.username = data.username
-		if (data.password) updateData.password_hash = hashPassword(data.password)
+		if (data.email) {
+			updateData.email = data.email
+		}
+		if (data.username) {
+			updateData.username = data.username
+		}
+		if (data.password) {
+			updateData.password_hash = hashPassword(data.password)
+		}
 
 		const [updateUser] = await db.update(users).set(updateData).where(eq(users.id, id)).returning()
 		if (!updateUser) {
@@ -45,7 +53,9 @@ const UserService = {
 	},
 
 	find: async (page?: number, limit?: number): Promise<UserResponse> => {
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		let pagination: any = undefined
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		let result: any[] = []
 		if (page && limit) {
 			const offset = getOffset(page, limit)
